@@ -21,7 +21,7 @@ class NativeAudio {
   static const _flutterMethodOnStopped = "onStopped";
   static const _flutterMethodOnProgressChanged = "onProgressChanged";
   static const _flutterMethodOnCompleted = "onCompleted";
-  static const _flutterMethodOnNext = "onCompleted";
+  static const _flutterMethodOnNext = "onNext";
   static const _flutterMethodOnPrevious = "onPrevious";
 
   Function(Duration) onLoaded;
