@@ -41,6 +41,7 @@ class AudioService : Service() {
         private const val NOTIFICATION_CHANNEL_DESCRIPTION = "Media Playback Controls"
     }
 
+    var hasPlayedBefore = false;
     var onLoaded: ((Long) -> Unit)? = null
     var onProgressChanged: ((Long) -> Unit)? = null
     var onResumed: (() -> Unit)? = null
@@ -199,12 +200,64 @@ class AudioService : Service() {
         currentPlaybackState = PlaybackStateCompat.STATE_PLAYING
         updatePlaybackState()
 
-        showNotification(
-                title = title ?: "",
-                artist = artist ?: "",
-                album = album ?: "",
-                imageUrl = imageUrl ?: ""
-        )
+        if(hasPlayedBefore){
+            Glide.with(this)
+                    .asBitmap()
+                    .load(imageUrl)
+                    .into(object : SimpleTarget<Bitmap>() {
+                        override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                            Palette.from(resource).generate { palette ->
+                                palette?.let {
+                                    // Palette generated, show notification with bitmap and palette
+                                    val color = it.getVibrantColor(Color.WHITE)
+                                    updateNotificationBuilder(
+                                            title = title ?: "",
+                                            artist = artist ?: "",
+                                            album = album ?: "",
+                                            notificationColor = color,
+                                            image = resource
+                                    )
+
+                                    startForeground(NOTIFICATION_ID, notificationBuilder.build())
+                                    isNotificationShown = true
+                                } ?: run {
+                                    // Failed to generate palette, show notification with bitmap
+                                    updateNotificationBuilder(
+                                            title = title ?: "",
+                                            artist = artist ?: "",
+                                            album = album ?: "",
+                                            image = resource
+                                    )
+
+                                    startForeground(NOTIFICATION_ID, notificationBuilder.build())
+                                    isNotificationShown = true
+                                }
+                            }
+                        }
+
+                        override fun onLoadFailed(errorDrawable: Drawable?) {
+                            super.onLoadFailed(errorDrawable)
+
+                            // Failed to load image, show notification
+                            updateNotificationBuilder(
+                                    title = title ?: "",
+                                    artist = artist ?: "",
+                                    album = album ?: ""
+                            )
+
+                            startForeground(NOTIFICATION_ID, notificationBuilder.build())
+                            isNotificationShown = true
+                        }
+                    })
+        }else{
+            this.hasPlayedBefore = true
+            showNotification(
+                    title = title ?: "",
+                    artist = artist ?: "",
+                    album = album ?: "",
+                    imageUrl = imageUrl ?: ""
+            )
+        }
     }
 
     fun resume() {
