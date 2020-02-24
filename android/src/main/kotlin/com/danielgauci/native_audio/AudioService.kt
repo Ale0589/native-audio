@@ -9,7 +9,6 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.media.AudioManager
-import android.media.session.PlaybackState
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
@@ -29,7 +28,6 @@ import androidx.palette.graphics.Palette
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
-import java.util.concurrent.TimeUnit
 
 class AudioService : Service() {
 
@@ -43,13 +41,14 @@ class AudioService : Service() {
         private const val NOTIFICATION_CHANNEL_DESCRIPTION = "Media Playback Controls"
     }
 
-    // TODO: Confirm that this does not leak the activity
     var onLoaded: ((Long) -> Unit)? = null
     var onProgressChanged: ((Long) -> Unit)? = null
     var onResumed: (() -> Unit)? = null
     var onPaused: (() -> Unit)? = null
     var onStopped: (() -> Unit)? = null
     var onCompleted: (() -> Unit)? = null
+    var onPrevious: (() -> Unit)? = null
+    var onNext: (() -> Unit)? = null
 
     private var currentPlaybackState = PlaybackStateCompat.STATE_STOPPED
     private var oldPlaybackState: Int = Int.MIN_VALUE
@@ -86,22 +85,12 @@ class AudioService : Service() {
 
                 override fun onSkipToNext() {
                     super.onSkipToNext()
-                    forward30()
+                    onNext?.invoke()
                 }
 
                 override fun onSkipToPrevious() {
                     super.onSkipToPrevious()
-                    rewind30()
-                }
-
-                override fun onFastForward() {
-                    super.onFastForward()
-                    forward30()
-                }
-
-                override fun onRewind() {
-                    super.onRewind()
-                    rewind30()
+                    onPrevious?.invoke()
                 }
             })
         }
@@ -149,12 +138,7 @@ class AudioService : Service() {
                             if (resumeOnAudioFocus && !isPlaying()) {
                                 resume()
                                 resumeOnAudioFocus = false
-                            } else if (isPlaying()) {
-                                // TODO: Set volume to full
                             }
-                        }
-                        AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
-                            // TODO: Set volume to duck
                         }
                         AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
                             if (isPlaying()) {
@@ -264,20 +248,6 @@ class AudioService : Service() {
         audioPlayer.seekTo(timeInMillis)
     }
 
-    private fun forward30() {
-        val forwardTime = TimeUnit.SECONDS.toMillis(30)
-        if (durationInMillis - currentPositionInMillis > forwardTime) {
-            seekTo(currentPositionInMillis + forwardTime.toInt())
-        }
-    }
-
-    private fun rewind30() {
-        val rewindTime = TimeUnit.SECONDS.toMillis(30)
-        if (currentPositionInMillis - rewindTime > 0) {
-            seekTo(currentPositionInMillis - rewindTime.toInt())
-        }
-    }
-
     private fun requestFocus() {
         AudioManagerCompat.requestAudioFocus(audioManager, audioFocusRequest)
     }
@@ -327,13 +297,13 @@ class AudioService : Service() {
                 .setStyle(mediaStyle)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setOnlyAlertOnce(true)
+                .setShowWhen(false)
                 .setOngoing(true)
-                .setSmallIcon(R.drawable.play)
+                .setSmallIcon(R.drawable.icon)
                 .setContentIntent(contentIntent)
                 .setDeleteIntent(stopIntent)
                 .setContentTitle(title)
-                .setContentText(album)
-                .setSubText(artist)
+                .setContentText(artist)
 
         notificationBuilder.apply {
             if (image != null) setLargeIcon(image)
@@ -355,22 +325,24 @@ class AudioService : Service() {
                     if (isPlaying) "Pause" else "Play",
                     MediaButtonReceiver.buildMediaButtonPendingIntent(this@AudioService, PlaybackStateCompat.ACTION_PLAY_PAUSE)
             ).build()
-            addAction(playPauseAction)
 
             // Add rewind action
             val rewindAction = NotificationCompat.Action.Builder(
-                    R.drawable.rewind_30,
-                    "Rewind",
+                    R.drawable.previous,
+                    "Previous",
                     MediaButtonReceiver.buildMediaButtonPendingIntent(this@AudioService, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS)
             ).build()
-            addAction(rewindAction)
+
 
             // Add fast forward action
             val forwardAction = NotificationCompat.Action.Builder(
-                    R.drawable.fast_forward_30,
-                    "Fast Forward",
+                    R.drawable.skip,
+                    "Next",
                     MediaButtonReceiver.buildMediaButtonPendingIntent(this@AudioService, PlaybackStateCompat.ACTION_SKIP_TO_NEXT)
             ).build()
+
+            addAction(rewindAction)
+            addAction(playPauseAction)
             addAction(forwardAction)
         }
     }

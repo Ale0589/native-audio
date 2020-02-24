@@ -42,6 +42,8 @@ class NativeAudioPlugin(
         private const val FLUTTER_METHOD_ON_PAUSED = "onPaused"
         private const val FLUTTER_METHOD_ON_STOPPED = "onStopped"
         private const val FLUTTER_METHOD_ON_COMPLETED = "onCompleted"
+        private const val FLUTTER_METHOD_ON_SKIP_TO_NEXT = "onNext"
+        private const val FLUTTER_METHOD_ON_SKIP_TO_PREVIOUS = "onPrevious"
 
         private var pluginRegistrantCallback: PluginRegistry.PluginRegistrantCallback? = null
 
@@ -183,6 +185,22 @@ class NativeAudioPlugin(
             onCompleted = {
                 try {
                     channel.invokeMethod(FLUTTER_METHOD_ON_COMPLETED, null)
+                } catch (e: Exception) {
+                    Log.e(this::class.java.simpleName, e.message, e)
+                }
+            }
+
+            onNext = {
+                try {
+                    channel.invokeMethod(FLUTTER_METHOD_ON_SKIP_TO_NEXT, null)
+                } catch (e: Exception) {
+                    Log.e(this::class.java.simpleName, e.message, e)
+                }
+            }
+
+            onPrevious = {
+                try {
+                    channel.invokeMethod(FLUTTER_METHOD_ON_SKIP_TO_PREVIOUS, null)
                 } catch (e: Exception) {
                     Log.e(this::class.java.simpleName, e.message, e)
                 }
