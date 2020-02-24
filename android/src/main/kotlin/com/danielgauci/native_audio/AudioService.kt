@@ -200,6 +200,7 @@ class AudioService : Service() {
         currentPlaybackState = PlaybackStateCompat.STATE_PLAYING
         updatePlaybackState()
 
+        System.out.println("Hello: $hasPlayedBefore")
         if(hasPlayedBefore){
             Glide.with(this)
                     .asBitmap()
