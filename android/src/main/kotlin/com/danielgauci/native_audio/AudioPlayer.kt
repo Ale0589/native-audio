@@ -59,7 +59,7 @@ class AudioPlayer(
         mediaPlayer = null
     }
         
-    fun getDuration(): Int? {
+    fun getDuration(): Int {
         return mediaPlayer?.getDuration()
     }
 
