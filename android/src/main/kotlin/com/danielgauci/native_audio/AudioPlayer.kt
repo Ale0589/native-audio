@@ -59,10 +59,10 @@ class AudioPlayer(
         mediaPlayer = null
     }
         
-    fun getDuration(): Int {
-        return mediaPlayer?.getDuration()
+    fun getDuration(): Int? {
+        return mediaPlayer?.duration
     }
-
+        
     private fun loadAudio(url: String) {
         mediaPlayer?.apply {
             setOnErrorListener { mp, what, extra ->
