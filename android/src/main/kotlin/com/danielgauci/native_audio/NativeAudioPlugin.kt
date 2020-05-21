@@ -35,6 +35,7 @@ class NativeAudioPlugin(
         private const val NATIVE_METHOD_SEEK_TO = "seekTo"
         private const val NATIVE_METHOD_SEEK_TO_ARG_TIME = "timeInMillis"
         private const val NATIVE_METHOD_RELEASE = "release"
+        private const val NATIVE_METHOD_DURATION = "getDuration"
 
         private const val FLUTTER_METHOD_ON_LOADED = "onLoaded"
         private const val FLUTTER_METHOD_ON_PROGRESS_CHANGED = "onProgressChanged"
@@ -90,6 +91,7 @@ class NativeAudioPlugin(
                         }
                     }
                 }
+                NATIVE_METHOD_DURATION -> result.success(service.getDuration())
                 NATIVE_METHOD_RESUME -> service.resume()
                 NATIVE_METHOD_PAUSE -> service.pause()
                 NATIVE_METHOD_STOP -> service.stop()
