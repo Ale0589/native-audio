@@ -185,8 +185,8 @@ class AudioService : Service() {
         audioPlayer.release()
     }
     
-    fun getDuration(): Int {
-       return audioPlayer.getDuration()
+    fun getDuration(): Int? {
+       return audioPlayer?.getDuration()
     }   
     
     fun play(
