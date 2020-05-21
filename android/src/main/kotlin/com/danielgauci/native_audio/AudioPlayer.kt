@@ -58,6 +58,10 @@ class AudioPlayer(
         mediaPlayer?.release()
         mediaPlayer = null
     }
+        
+    fun getDuration(): Int {
+        return mediaPlayer?.getDuration()
+    }
 
     private fun loadAudio(url: String) {
         mediaPlayer?.apply {
