@@ -60,7 +60,7 @@ class AudioPlayer(
     }
         
     fun getDuration(): Int {
-        return mediaPlayer?.getDuration()
+        return mediaPlayer.getDuration()
     }
 
     private fun loadAudio(url: String) {
