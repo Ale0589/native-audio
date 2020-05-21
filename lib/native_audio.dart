@@ -23,6 +23,7 @@ class NativeAudio {
   static const _flutterMethodOnCompleted = "onCompleted";
   static const _flutterMethodOnNext = "onNext";
   static const _flutterMethodOnPrevious = "onPrevious";
+  static const _flutterMethodDuration = "getDuration";
 
   Function(Duration) onLoaded;
   Function() onResumed;
@@ -72,6 +73,10 @@ class NativeAudio {
     _invokeNativeMethod(_nativeMethodRelease);
   }
 
+  int getDuration() {
+    _invokeNativeMethod(_flutterMethodDuration);
+  }
+  
   void _registerMethodCallHandler() {
     // Listen to method calls from native
     _channel.setMethodCallHandler((methodCall) {
