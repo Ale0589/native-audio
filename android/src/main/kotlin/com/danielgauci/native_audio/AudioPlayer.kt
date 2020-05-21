@@ -59,8 +59,8 @@ class AudioPlayer(
         mediaPlayer = null
     }
         
-    fun getDuration(): Int {
-        return mediaPlayer.getDuration()
+    fun getDuration(): Int? {
+        return mediaPlayer?.getDuration()
     }
 
     private fun loadAudio(url: String) {
