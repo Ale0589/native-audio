@@ -184,7 +184,11 @@ class AudioService : Service() {
         super.onDestroy()
         audioPlayer.release()
     }
-
+    
+    fun getDuration(): Int {
+       return audioPlayer.getDuration()
+    }   
+    
     fun play(
             url: String,
             title: String? = null,
